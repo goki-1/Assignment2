@@ -1,17 +1,11 @@
-// sampler.h
-// Module to sample light levels in the background (uses a thread).
-//
-// It continuously samples the light level, and stores it internally.
-// It provides access to the samples it recorded during the _previous_
-// complete second.
-//
-// The application will do a number of actions each second which must
-// be synchronized (such as computing dips and printing to the screen).
-// To make easy to work with the data, the app must call
-// Sampler_moveCurrentDataToHistory() each second to trigger this
-// module to move the current samples into the history.
-#ifndef _SAMPLER_H_
-#define _SAMPLER_H_
+#include "sampler.h"
+#include "hal_light_sensor.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
+#include <unistd.h>
+
 // Begin/end the background thread which samples light levels.
 void Sampler_init(void);
 void Sampler_cleanup(void);
