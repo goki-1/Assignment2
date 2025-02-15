@@ -1,5 +1,5 @@
-#include "sampler.h"
-#include "hal_light_sensor.h"
+#include "hal/sampler.h"
+#include "hal/i2c_bus.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
