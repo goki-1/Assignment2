@@ -47,6 +47,8 @@ void write_i2c_reg16(int i2c_file_desc, uint8_t reg_addr, uint16_t value);
 //reg_addr: the address of the register to read from
 uint16_t read_i2c_reg16(int i2c_file_desc, uint8_t reg_addr);
 
+float getVoltage(int i2c_file_desc);
+
 void close_i2c_bus(int address);
 
 #endif // I2C_HELPER_H
