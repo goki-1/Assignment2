@@ -6,8 +6,24 @@
 #include <pthread.h>
 #include <unistd.h>
 
+static double currentBuffer[1000];  // Current second samples
+static double historyBuffer[1000];  // Last second samples
+static int currentSampleCount = 0;         // Number of samples in current second
+static int historySampleCount = 0;         // Number of samples in last second
+
+
+static pthread_t samplerThread;
+static pthread_mutex_t bufferMutex = PTHREAD_MUTEX_INITIALIZER;
+static bool isRunning = false;
+
+static double currentAverage = 0.0;
+static bool isFirstSample = true;
+
+static long long totalSamples = 0;
 // Begin/end the background thread which samples light levels.
-void Sampler_init(void);
+void Sampler_init(void){
+  int_
+}
 void Sampler_cleanup(void);
 // Must be called once every 1s.
 // Moves the samples that it has been collecting this second into
@@ -25,4 +41,4 @@ double* Sampler_getHistory(int *size);
 double Sampler_getAverageReading(void);
 // Get the total number of light level samples taken so far.
 long long Sampler_getNumSamplesTaken(void);
-#endif
+
