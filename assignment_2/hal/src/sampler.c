@@ -18,13 +18,47 @@ static bool isRunning = false;
 
 static double currentAverage = 0.0;
 static bool isFirstSample = true;
-
+static int i2c_file_desc;
 static long long totalSamples = 0;
+
+static void updateAverage(double sample) {
+    if (isFirstSample) {
+        currentAverage = sample;
+        isFirstSample = false;
+    } else {
+        currentAverage = 0.1 * sample + 99.9 * currentAverage;
+    }
+}
+
+static void storeSample(double sample) {
+    pthread_mutex_lock(&bufferMutex);
+    if (currentSampleCount < MAX_SAMPLES) {
+        currentBuffer[currentSampleCount++] = sample;
+    }
+    pthread_mutex_unlock(&bufferMutex);
+}
+
+static void* read_voltage(void* arg) {
+    while (isRunning) {
+        float sample = getVoltage( i2c_file_desc );    // Read from ADC
+        totalSamples++;                        // Count total samples
+        updateAverage(sample);                // Update EMA
+        storeSample(sample);          
+        usleep(1000);                         // Sleep 1 millisecond
+    }
+    return NULL;
+}
 // Begin/end the background thread which samples light levels.
 void Sampler_init(void){
-  int_
+    i2c_file_desc = init_i2c_bus(I2CDRV_LINUX_BUS, I2C_DEVICE_ADDRESS);
+    write_i2c_reg16(i2c_file_desc, REG_CONFIGURATION, TLA2024_CHANNEL_CONF_2);
+    isRunning = true;
+    pthread_create(&samplerThread, NULL, read_voltage, NULL);
 }
-void Sampler_cleanup(void);
+void Sampler_cleanup(void){
+    isRunning = false;
+    pthread_join(samplerThread, NULL);
+}
 // Must be called once every 1s.
 // Moves the samples that it has been collecting this second into
 // the history, which makes the samples available for reads (below).
