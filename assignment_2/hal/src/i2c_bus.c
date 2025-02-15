@@ -57,6 +57,17 @@ uint16_t read_i2c_reg16(int i2c_file_desc, uint8_t reg_addr)
 	return value;
 }
 
+float getVoltage(int i2c_file_des){
+    uint16_t raw_y = read_i2c_reg16(i2c_file_desc, REG_DATA);
+    
+    // Swap bytes & extract 12-bit value
+    uint16_t xy = ((raw_y >> 8) | (raw_y << 8)) >> 4;
+    
+    // Convert to voltage (assuming 3.3V reference)
+    float voltage = (xy * 3.3) / 4096.0;
+    return voltage;
+}
+
 void close_i2c_bus(int address){
 	close(address);
 }
