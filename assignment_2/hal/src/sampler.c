@@ -32,7 +32,7 @@ static void updateAverage(double sample) {
 
 static void storeSample(double sample) {
     pthread_mutex_lock(&bufferMutex);
-    if (currentSampleCount < MAX_SAMPLES) {
+    if (currentSampleCount < 1000) {
         currentBuffer[currentSampleCount++] = sample;
     }
     pthread_mutex_unlock(&bufferMutex);
@@ -63,7 +63,17 @@ void Sampler_cleanup(void){
 // Must be called once every 1s.
 // Moves the samples that it has been collecting this second into
 // the history, which makes the samples available for reads (below).
-void Sampler_moveCurrentDataToHistory(void);
+void Sampler_moveCurrentDataToHistory(void) {
+    pthread_mutex_lock(&bufferMutex);
+    // Copy samples using a for loop
+    for (int i = 0; i < currentSampleCount; i++) {
+        historyBuffer[i] = currentBuffer[i];
+    }
+    historySampleCount = currentSampleCount;
+    currentSampleCount = 0;  // Reset current buffer for the next second
+    pthread_mutex_unlock(&bufferMutex);
+}
+
 
 
 // Get the number of samples collected during the previous complete second.
@@ -75,7 +85,17 @@ int Sampler_getHistorySize(void) {
 // number of elements in the returned array (output-only parameter).
 // The calling code must call free() on the returned pointer.
 // Note: It provides both data and size to ensure consistency.
-double* Sampler_getHistory(int *size);
+double* Sampler_getHistory(int *size){
+pthread_mutex_lock(&bufferMutex);
+*size = historySampleCount;
+double* copy = malloc(sizeof(double) * historySampleCount);
+if (copy) {
+    memcpy(copy, historyBuffer, sizeof(double) * historySampleCount);
+}
+historySampleCount = 0;
+pthread_mutex_unlock(&bufferMutex);
+return copy;
+}
 
 
 // Get the average light level (not tied to the history).
