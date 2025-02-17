@@ -1,0 +1,1 @@
+/usr/bin/aarch64-linux-gnu-gcc -g -pthread CMakeFiles/gpio_statemachine.dir/src/gpio.c.o CMakeFiles/gpio_statemachine.dir/src/main.c.o CMakeFiles/gpio_statemachine.dir/src/rotar_statemachine.c.o -o gpio_statemachine  -lgpiod 

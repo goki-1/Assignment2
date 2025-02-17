@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/build",
+  "command": "/usr/bin/aarch64-linux-gnu-gcc  -I/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/include -g -Wall -Werror -Wpedantic -Wextra -D_POSIX_C_SOURCE=200809L -Wshadow -fdiagnostics-color -pthread -std=gnu11 -o CMakeFiles/gpio_statemachine.dir/src/gpio.c.o -c /home/sukhmanpreet/cmpt433/work/myApps/gpio_state/src/gpio.c",
+  "file": "/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/src/gpio.c"
+},
+{
+  "directory": "/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/build",
+  "command": "/usr/bin/aarch64-linux-gnu-gcc  -I/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/include -g -Wall -Werror -Wpedantic -Wextra -D_POSIX_C_SOURCE=200809L -Wshadow -fdiagnostics-color -pthread -std=gnu11 -o CMakeFiles/gpio_statemachine.dir/src/main.c.o -c /home/sukhmanpreet/cmpt433/work/myApps/gpio_state/src/main.c",
+  "file": "/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/src/main.c"
+},
+{
+  "directory": "/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/build",
+  "command": "/usr/bin/aarch64-linux-gnu-gcc  -I/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/include -g -Wall -Werror -Wpedantic -Wextra -D_POSIX_C_SOURCE=200809L -Wshadow -fdiagnostics-color -pthread -std=gnu11 -o CMakeFiles/gpio_statemachine.dir/src/rotar_statemachine.c.o -c /home/sukhmanpreet/cmpt433/work/myApps/gpio_state/src/rotar_statemachine.c",
+  "file": "/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/src/rotar_statemachine.c"
+}
+]

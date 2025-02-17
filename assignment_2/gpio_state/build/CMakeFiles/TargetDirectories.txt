@@ -1,0 +1,3 @@
+/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/build/CMakeFiles/gpio_statemachine.dir
+/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/build/CMakeFiles/edit_cache.dir
+/home/sukhmanpreet/cmpt433/work/myApps/gpio_state/build/CMakeFiles/rebuild_cache.dir
