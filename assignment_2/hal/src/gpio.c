@@ -1,4 +1,4 @@
-#include "hal/gpio.h"
+#include "gpio.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <gpiod.h>
@@ -99,7 +99,7 @@ int Gpio_waitForLineChange(
     gpiod_line_bulk_add(&bulkWait, (struct gpiod_line*)line1);
     gpiod_line_bulk_add(&bulkWait, (struct gpiod_line*)line2);
 
-    gpiod_line_bulk_set_lines(&bulkWait, lines, 2);
+    //gpiod_line_bulk_set_line(&bulkWait, lines, 2);
 
 
     gpiod_line_request_bulk_both_edges_events(&bulkWait, "Event Waiting");

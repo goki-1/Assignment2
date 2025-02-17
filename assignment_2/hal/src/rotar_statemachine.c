@@ -1,9 +1,10 @@
-#include "hal/rotar_statemachine.h"
-#include "hal/gpio.h"
+#include "rotar_statemachine.h"
+#include "gpio.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdatomic.h>
+
 
 #define GPIO_CHIP   GPIO_CHIP_2
 #define GPIO_LINE_A  7
@@ -68,7 +69,7 @@ struct state states[] = {
 struct state* pCurrentState = &states[0];
 
 void rotar_state_machine_init(){
-    assert(!isInitialized);
+    assert(!is_initialized);
     s_lineA = Gpio_openForEvents(GPIO_CHIP, GPIO_LINE_A);
     s_lineB = Gpio_openForEvents(GPIO_CHIP, GPIO_LINE_B);
     is_initialized = true;
@@ -87,7 +88,7 @@ int rotar_state_machine_get_value(){
 
 //this function needs to be in a background thread therefre after the init function start this as a thread.
 void rotar_state_machine_do_state(){
-    assert(_is_initialized);
+    assert(is_initialized);
     struct gpiod_line_bulk bulkEvents;
     int num_events = Gpio_waitForLineChange(s_lineA, s_lineB, &bulkEvents);
     for(int i = 0 ;i < num_events ; i++){
@@ -114,19 +115,27 @@ void rotar_state_machine_do_state(){
 
         struct stateEvent* pEvent = NULL;
         if(is_A){// Process A rising or falling
-            pStateEvent = isRising ? &pCurrentState->a_rising :
-            &pCurrentState->a_falling;
+                if(is_rising){
+                    pEvent = &pCurrentState->a_rising;
+                }
+                else{
+                    pEvent = &pCurrentState->a_falling;
+                }    
         } 
         else if(is_B) {// Process B rising or falling
-            pStateEvent = isRising ? &pCurrentState->b_rising :
-            &pCurrentState->b_falling;
+                if(is_rising){
+                    pEvent = &pCurrentState->b_rising;
+                }
+                else{
+                    pEvent = &pCurrentState->b_falling;
+                }
         }
         // Execute the action if any
-        if(pStateEvent != NULL && pStateEvent->action != NULL) {
+        if(pEvent->action != NULL) {
             //this is where we call the counter++ or counter -- if the action is not NULL
-            pStateEvent->action();  
+            pEvent->action();  
         }
         //change the current state to the next state
-        pCurrentState = pStateEvent->pNextState;
+        pCurrentState = pEvent->pNextState;
     }
 }
