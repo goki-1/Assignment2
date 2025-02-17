@@ -4,7 +4,7 @@
 
 void rotar_state_machine_init(void);
 void rotar_state_machine_cleanup(void);
-int rotar_state_machine_getValue(void);
+int rotar_state_machine_get_value(void);
 
-void rotar_state_machine_doState();
+void rotar_state_machine_do_state();
 #endif
