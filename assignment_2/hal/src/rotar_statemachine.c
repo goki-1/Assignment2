@@ -17,6 +17,8 @@ static struct GpioLine* s_lineA = NULL;
 static struct GpioLine* s_lineB = NULL;
 //atomic variable to store the counter
 static atomic_int counter = 0;
+static atomic_int count_cw = 0;        //if this is 3 then only add to the counter 
+static atomic_int count_ccw = 0;       //if this is 3 then only subtract to the counter                             
 
 struct stateEvent {
     struct state* pNextState;
@@ -29,37 +31,74 @@ struct state {
     struct stateEvent b_rising;
     struct stateEvent b_falling;
 };
-//helper functions for the state machine
+//after each counter increment reset the helper counters
+static void reset_counter(void){
+    count_cw = 0;
+    count_ccw = 0;
+}
+//for each clockwise movement, we increase the helper clockwise counter
+static void inc_clockwise(void){
+    count_cw++;
+}
+//for each counter clockwise movement, we increase the helper counter clockwise counter
+static void inc_counter_clockwise(void){
+    count_ccw++;
+}
+
+//increase the counter by 1 if clockwise cycle is completed
 static void rotary_clockwise(void){
-    counter++;
+    if(count_cw >= 3){
+        counter++;
+        reset_counter();
+    }
+    //remove this else statement after testing
+    else{
+        printf("DEBUG: The count_cw was not properly set to 3 \n");
+        printf("DEBUG: The value of count_cw is %d\n",count_cw);
+        printf("DEBUG: The value of count_ccw is %d\n", count_ccw);
+    }
 }
+//decrease the counter by 1 if counter clockwise cycle is completed.
 static void rotary_counter_clockwise(void){
-    counter--;
+    if(count_ccw >= 3){
+        counter--;
+        reset_counter();
+    }
+    //remove this else statement after testing 
+    else{
+        printf("DEBUG: The count_ccw was not set properly to 3 \n");
+        printf("DEBUG: The value of count_cw is %d\n",count_cw);
+        printf("DEBUG: The value of count_ccw is %d\n", count_ccw);
+    }
+    
 }
+//for every clockwise move, we change the values for the counter as control variables
+
+
 //STATE MACHINE DESCRIPTION
 struct state states[] = {
     {// 0
         .a_rising  = {&states[0], NULL},                        //on A rising stay in 0
-        .a_falling = {&states[1], NULL},                        //on A falling move from 0->1
+        .a_falling = {&states[1], inc_clockwise},               //on A falling move from 0->1
         .b_rising  = {&states[0], NULL},                        //on B rising stay in 0 
-        .b_falling = {&states[3], NULL},                        //on B falling move from 0->3
+        .b_falling = {&states[3], inc_counter_clockwise},       //on B falling move from 0->3
     },
 
     {// 1
         .a_rising  = {&states[0], rotary_counter_clockwise},    //on A rising move from 1->REST and counter - 1  
         .a_falling = {&states[1], NULL},                        //on A falling stay in 1
         .b_rising  = {&states[1], NULL},                        //on B rising stay in 1
-        .b_falling = {&states[2], NULL},                        //on B falling move from 1->2   
+        .b_falling = {&states[2], inc_clockwise},                        //on B falling move from 1->2   
     },
     {// 2
-        .a_rising  = {&states[3], NULL},                        //on A rising move from 2->3
+        .a_rising  = {&states[3], inc_clockwise},               //on A rising move from 2->3
         .a_falling = {&states[2], NULL},                        //on A falling stay in 2
-        .b_rising  = {&states[1], NULL},                        //on B rising move from 2->1    
+        .b_rising  = {&states[1], inc_counter_clockwise},       //on B rising move from 2->1    
         .b_falling = {&states[2], NULL},                        //on B falling stay in 2
     },
     {// 3
         .a_rising  = {&states[3], NULL},                        //on A rising stay in 3 
-        .a_falling = {&states[2], NULL},                        //on A falling move from 3->2   
+        .a_falling = {&states[2], inc_counter_clockwise},                        //on A falling move from 3->2   
         .b_rising  = {&states[0], rotary_clockwise},            //on B rising move from 3->REST and counter + 1
         .b_falling = {&states[3], NULL},                        //on B falling stay in 3
     },
@@ -73,6 +112,7 @@ void rotar_state_machine_init(){
     s_lineA = Gpio_openForEvents(GPIO_CHIP, GPIO_LINE_A);
     s_lineB = Gpio_openForEvents(GPIO_CHIP, GPIO_LINE_B);
     is_initialized = true;
+    reset_counter();
 }
 
 void rotar_state_machine_cleanup(){
