@@ -34,7 +34,7 @@ void pwm_enable(int enable) {
     pwm_write("enable", enable);
 }
 
-void change_frequency(int counter){
+void change_frequency(int frequency){
 
     int period_ns = 1000000000 / frequency;
     pwm_set_period(period_ns);
