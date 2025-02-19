@@ -1,5 +1,8 @@
 #include "hal/pwm.h"
 
+
+void pwn
+
 void pwm_write(const char *filename, int value) {
     char path[100];
     snprintf(path, sizeof(path), "%s%s", PWM_PATH, filename);
@@ -24,4 +27,9 @@ void pwm_set_period(int period) {
 
 void pwm_enable(int enable) {
     pwm_write("enable", enable);
+}
+
+void change_frequency(int counter){
+    counter = counter * 10000;
+    pwm_set_duty_cycle( counter );
 }
