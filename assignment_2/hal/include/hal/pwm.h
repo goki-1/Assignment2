@@ -10,6 +10,6 @@ void int_pwn();
 void pwm_set_duty_cycle(int duty_cycle);
 void pwm_set_period(int period);
 void pwm_enable(int enable);
-
+void change_frequency(int frequency);
 
 #endif
