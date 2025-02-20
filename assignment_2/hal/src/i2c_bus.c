@@ -46,7 +46,7 @@ uint16_t read_i2c_reg16(int i2c_file_desc, uint8_t reg_addr)
 		exit(EXIT_FAILURE);
 	}
 	//need to put a delay here in order to have the data ready to be read
-	sleep_ms(50);  //50ms delay
+	//sleep_ms(50);  //50ms delay
 	// Now read the value and return it
 	uint16_t value = 0;
 	int bytes_read = read(i2c_file_desc, &value, sizeof(value));
@@ -64,7 +64,7 @@ float getVoltage(int i2c_file_desc){
     uint16_t xy = ((raw_y >> 8) | (raw_y << 8)) >> 4;
     
     // Convert to voltage (assuming 3.3V reference)
-    float voltage = (xy * 3.3) / 4096.0;
+    float voltage = xy * ADC_TO_VOLTAGE; 
     return voltage;
 }
 

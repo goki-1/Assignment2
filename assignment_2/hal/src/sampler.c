@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include "hal/helper.h"
+#include <time.h>
 
 static double currentBuffer[1000];  // Current second samples
 static double historyBuffer[1000];  // Last second samples
@@ -28,8 +29,9 @@ static void updateAverage(double sample) {
         currentAverage = sample;
         isFirstSample = false;
     } else {
-        currentAverage = 0.1 * sample + 99.9 * currentAverage;
+        currentAverage = (.1 * sample) + (.9 * currentAverage);
     }
+     //printf("DEBUG: sample = %.6f, currentAverage = %.6f\n", sample, currentAverage);
 }
 
 static void storeSample(double sample) {
@@ -60,6 +62,7 @@ static void* read_voltage(void* arg) {
     (void)arg;
     while (isRunning) {
         float sample = getVoltage( i2c_file_desc );    // Read from ADC
+        
         totalSamples++;                        // Count total samples
         updateAverage(sample);                // Update EMA
         storeSample(sample);
@@ -105,15 +108,15 @@ int Sampler_getHistorySize(void) {
 // The calling code must call free() on the returned pointer.
 // Note: It provides both data and size to ensure consistency.
 double* Sampler_getHistory(int *size){
-pthread_mutex_lock(&bufferMutex);
-*size = historySampleCount;
-double* copy = malloc(sizeof(double) * historySampleCount);
-if (copy) {
-    memcpy(copy, historyBuffer, sizeof(double) * historySampleCount);
-}
-historySampleCount = 0;
-pthread_mutex_unlock(&bufferMutex);
-return copy;
+    pthread_mutex_lock(&bufferMutex);
+    *size = historySampleCount;
+    double* copy = malloc(sizeof(double) * historySampleCount);
+    if (copy) {
+        memcpy(copy, historyBuffer, sizeof(double) * historySampleCount);
+    }
+    historySampleCount = 0;
+    pthread_mutex_unlock(&bufferMutex);
+    return copy;
 }
 
 

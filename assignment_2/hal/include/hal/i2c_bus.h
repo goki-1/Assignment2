@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>
+#define ADC_TO_VOLTAGE (3.3 / 4096.0)  // Precompute this once
+
 
 // I2C bus and device address
 #define I2CDRV_LINUX_BUS "/dev/i2c-1"
