@@ -15,7 +15,7 @@
 // Begin/end the background thread which samples light levels.
 void Sampler_init(void);
 void Sampler_cleanup(void);
-
+static void detectDip(double sample);
 // Must be called once every 1s.
 // Moves the samples that it has been collecting this second into
 // the history, which makes the samples available for reads (below).
