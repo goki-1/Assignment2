@@ -57,6 +57,7 @@ static void detectDip(double sample) {
 
 
 static void* read_voltage(void* arg) {
+    (void)arg;
     while (isRunning) {
         float sample = getVoltage( i2c_file_desc );    // Read from ADC
         totalSamples++;                        // Count total samples
@@ -70,7 +71,7 @@ static void* read_voltage(void* arg) {
 // Begin/end the background thread which samples light levels.
 void Sampler_init(void){
     i2c_file_desc = init_i2c_bus(I2CDRV_LINUX_BUS, I2C_DEVICE_ADDRESS);
-    write_i2c_reg16(i2c_file_desc, REG_CONFIGURATION, TLA2024_CHANNEL_CONF_2);
+    write_i2c_reg16(i2c_file_desc, REG_CONFIGURATION, TLA_CHANNEL_CONF_2);
     isRunning = true;
     pthread_create(&samplerThread, NULL, read_voltage, NULL);
 }

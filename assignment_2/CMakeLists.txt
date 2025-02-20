@@ -20,6 +20,8 @@ add_link_options(-pthread)
 add_compile_definitions(_POSIX_C_SOURCE=200809L)
 
 # What folders to build
+add_subdirectory(lgpio)
+add_subdirectory(lcd)
 add_subdirectory(hal)  
 add_subdirectory(app)
 

@@ -57,7 +57,7 @@ uint16_t read_i2c_reg16(int i2c_file_desc, uint8_t reg_addr)
 	return value;
 }
 
-float getVoltage(int i2c_file_des){
+float getVoltage(int i2c_file_desc){
     uint16_t raw_y = read_i2c_reg16(i2c_file_desc, REG_DATA);
     
     // Swap bytes & extract 12-bit value

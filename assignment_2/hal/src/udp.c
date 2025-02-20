@@ -20,7 +20,7 @@ static int socketDescriptor = -1;
 static struct sockaddr_in sinRemote;
 static unsigned int sin_len = sizeof(sinRemote);
 static char message_rc[RECVBUFLEN];
-static char message_sn[SENDBUFLEN];
+//static char message_sn[SENDBUFLEN];
 
 
 // Function to create and bind  UDP socket

@@ -6,6 +6,8 @@ add_executable(reaction_timer ${MY_SOURCES})
 
 # Make use of the HAL library
 target_link_libraries(reaction_timer LINK_PRIVATE hal)
+target_link_libraries(reaction_timer LINK_PRIVATE lcd)
+target_link_libraries(reaction_timer LINK_PRIVATE lgpio)
 
 # Copy executable to final location (change `hello_world` to project name as needed)
 add_custom_command(TARGET reaction_timer POST_BUILD 
