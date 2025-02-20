@@ -5,6 +5,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include "hal/helper.h"
 
 static double currentBuffer[1000];  // Current second samples
 static double historyBuffer[1000];  // Last second samples
@@ -62,7 +63,7 @@ static void* read_voltage(void* arg) {
         updateAverage(sample);                // Update EMA
         storeSample(sample);
         detectDip(sample);  // Check if a dip occurred
-        usleep(1000);                         // Sleep 1 millisecond
+        sleep_ms(1);                        // Sleep 1 millisecond
     }
     return NULL;
 }
