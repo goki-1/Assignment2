@@ -11,7 +11,7 @@ static double historyBuffer[1000];  // Last second samples
 static int currentSampleCount = 0;         // Number of samples in current second
 static int historySampleCount = 0;         // Number of samples in last second
 
-
+static int dip_counter = 0;
 static pthread_t samplerThread;
 static pthread_mutex_t bufferMutex = PTHREAD_MUTEX_INITIALIZER;
 static bool isRunning = false;
@@ -20,6 +20,7 @@ static double currentAverage = 0.0;
 static bool isFirstSample = true;
 static int i2c_file_desc;
 static long long totalSamples = 0;
+static bool dipDetected = false;  // Tracks if a dip has been detected
 
 static void updateAverage(double sample) {
     if (isFirstSample) {
@@ -38,12 +39,29 @@ static void storeSample(double sample) {
     pthread_mutex_unlock(&bufferMutex);
 }
 
+static void detectDip(double sample) {
+    double dipThreshold = currentAverage - 0.1;   // 0.1V below average
+    double resetThreshold = currentAverage - 0.07; // 0.07V below average for reset
+
+    if (!dipDetected && sample <= dipThreshold) {
+        dip_counter++;  // Count the dip
+        dipDetected = true;  // Prevent immediate retrigger
+    }
+
+    // Reset dip detection when light level rises above reset threshold
+    if (dipDetected && sample >= resetThreshold) {
+        dipDetected = false;
+    }
+}
+
+
 static void* read_voltage(void* arg) {
     while (isRunning) {
         float sample = getVoltage( i2c_file_desc );    // Read from ADC
         totalSamples++;                        // Count total samples
         updateAverage(sample);                // Update EMA
-        storeSample(sample);          
+        storeSample(sample);
+        detectDip(sample);  // Check if a dip occurred
         usleep(1000);                         // Sleep 1 millisecond
     }
     return NULL;
@@ -65,12 +83,11 @@ void Sampler_cleanup(void){
 // the history, which makes the samples available for reads (below).
 void Sampler_moveCurrentDataToHistory(void) {
     pthread_mutex_lock(&bufferMutex);
-    // Copy samples using a for loop
-    for (int i = 0; i < currentSampleCount; i++) {
-        historyBuffer[i] = currentBuffer[i];
-    }
+    memcpy(historyBuffer, currentBuffer, currentSampleCount * sizeof(double));
+    
     historySampleCount = currentSampleCount;
     currentSampleCount = 0;  // Reset current buffer for the next second
+    dip_counter = 0;
     pthread_mutex_unlock(&bufferMutex);
 }
 
@@ -105,4 +122,7 @@ double Sampler_getAverageReading(void) {
 // Get the total number of light level samples taken so far.
 long long Sampler_getNumSamplesTaken(void) {
     return totalSamples;
+}
+int Sampler_getDipCounter(void){
+    return dip_counter;
 }
