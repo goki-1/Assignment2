@@ -8,12 +8,14 @@
 #include "hal/helper.h"
 #include <time.h>
 
+#include <stdatomic.h>
+
 static double currentBuffer[1000];  // Current second samples
 static double historyBuffer[1000];  // Last second samples
 static int currentSampleCount = 0;         // Number of samples in current second
 static int historySampleCount = 0;         // Number of samples in last second
 
-static int dip_counter = 0;
+static atomic_int dip_counter = 0;
 static pthread_t samplerThread;
 static pthread_mutex_t bufferMutex = PTHREAD_MUTEX_INITIALIZER;
 static bool isRunning = false;
@@ -29,7 +31,7 @@ static void updateAverage(double sample) {
         currentAverage = sample;
         isFirstSample = false;
     } else {
-        currentAverage = (.1 * sample) + (.9 * currentAverage);
+        currentAverage = (.001 * sample) + (.999 * currentAverage);
     }
      //printf("DEBUG: sample = %.6f, currentAverage = %.6f\n", sample, currentAverage);
 }
@@ -63,6 +65,7 @@ static void* read_voltage(void* arg) {
     while (isRunning) {
         float sample = getVoltage( i2c_file_desc );    // Read from ADC
         
+        Period_markEvent(PERIOD_EVENT_SAMPLE_LIGHT);
         totalSamples++;                        // Count total samples
         updateAverage(sample);                // Update EMA
         storeSample(sample);
@@ -92,7 +95,7 @@ void Sampler_moveCurrentDataToHistory(void) {
     
     historySampleCount = currentSampleCount;
     currentSampleCount = 0;  // Reset current buffer for the next second
-    dip_counter = 0;
+    atomic_store(&dip_counter,0);
     pthread_mutex_unlock(&bufferMutex);
 }
 

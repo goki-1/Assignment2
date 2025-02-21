@@ -1,7 +1,7 @@
 #include "hal/pwm.h"
 
 
-void init_pwm(){
+void init_pwm(void){
     pwm_set_duty_cycle(0);     // Reset duty cycle
     change_frequency(10);    // Set frequency to 10 Hz
     pwm_set_duty_cycle(5000000); // Set 50% duty cycle
@@ -38,4 +38,7 @@ void change_frequency(int frequency){
 
     int period_ns = 1000000000 / frequency;
     pwm_set_period(period_ns);
+}
+void close_pwm(void){
+    pwm_enable(0);
 }

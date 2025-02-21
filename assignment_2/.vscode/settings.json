@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "gpiod.h": "c",
+        "gpio.h": "c",
+        "stdatomic.h": "c"
+    }
+}
