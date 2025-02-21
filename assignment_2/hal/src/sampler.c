@@ -85,6 +85,13 @@ void Sampler_cleanup(void){
     isRunning = false;
     pthread_join(samplerThread, NULL);
     close_i2c_bus(i2c_file_desc);
+
+    pthread_mutex_lock(&bufferMutex);
+    memset(currentBuffer, 0, sizeof(currentBuffer));  // Clear current buffer
+    memset(historyBuffer, 0, sizeof(historyBuffer));  // Clear history buffer
+    historySampleCount = 0;
+    currentSampleCount = 0;
+    pthread_mutex_unlock(&bufferMutex);
 }
 // Must be called once every 1s.
 // Moves the samples that it has been collecting this second into
