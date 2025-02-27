@@ -1,4 +1,8 @@
 // Low-level GPIO access using gpiod
+//this file is provided by the professor and it is used as is 
+//I have added a linne in here in order to read from two channels at the same time
+//We need to read chip 2 line 7 and 8 at the same time
+//taken from this link downlodable file with file name gpio.h https://opencoursehub.cs.sfu.ca/bfraser/solutions/433/guide-code/rotary_encoder/
 #ifndef _GPIO_H_
 #define _GPIO_H_
 

@@ -1,6 +1,10 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
-
+/*
+* This file runs the connection between main and udp
+* It will start the connection, parse the command, generate the response, stop the connection, and update the values.
+* It will also have a function to get the current command that is being requested.
+*/
 #include "udp.h"
 #include <pthread.h>
 
@@ -67,7 +71,25 @@ void* comm_func(void* data);
  */
 void stop_connection(void);
 
+/**
+ *  Function to be used inside the main.
+ * 
+ *  This function will read values from main in order to send the data requested in response.
+ * 
+ * a is for total samples taken so far , length is for the length of samples taken in last second, history is the pointer to the array of samokes and history_size is the size of the array.
+ *  
+ *  no return type as it is an update funciton
+ */ 
 void update(long long a, int dip, int length, double* history, int history_size);
 
+/**
+ *  Function to be used inside main.
+ * 
+ *  This function is used to get the current command that is being requested.
+ * 
+ *  when asked to stop, it will return CDM_STOP, which is used to initiate the closing down of the main
+ * 
+ *  return type is enum Command_type described on the top of the file.
+ */
 Command_type get_current_command(void);
 #endif
