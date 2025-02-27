@@ -6,6 +6,7 @@
 #include <stdatomic.h>
 #include <gpiod.h>
 #include <pthread.h>
+//Basic idea taken from this link downlodable file with file name btn_statemachine.c https://opencoursehub.cs.sfu.ca/bfraser/solutions/433/guide-code/rotary_encoder/
 
 #define GPIO_CHIP   GPIO_CHIP_2
 #define GPIO_LINE_A  7
@@ -18,20 +19,23 @@ static struct GpioLine* s_lineA = NULL;
 static struct GpioLine* s_lineB = NULL;
 //atomic variable to store the counter
 static atomic_int counter = 10;        //this is set to 10 as this value will be sent to the value frequency.
-static atomic_int count_cw = 0;        //if this is 3 then only add to the counter 
-static atomic_int count_ccw = 0;       //if this is 3 then only subtract to the counter                             
+static atomic_int count_cw = 0;        //if this is 3 then only add to the counter i.e. counter clockwise
+static atomic_int count_ccw = 0;       //if this is 3 then only subtract to the counter  i.e. counter clockwise                           
+//thread to run the state machine
 pthread_t rotary_thread;
+//data type to store the next state and the action to be performed
 struct stateEvent {
     struct state* pNextState;
     void (*action)();
 };
-
+//data type to store the line events
 struct state {
     struct stateEvent a_rising;
     struct stateEvent a_falling;
     struct stateEvent b_rising;
     struct stateEvent b_falling;
 };
+
 //after each counter increment reset the helper counters
 static void reset_counter(void){
     count_cw = 0;
@@ -111,6 +115,8 @@ struct state states[] = {
 
 //this is the beginning state of the state machine
 struct state* pCurrentState = &states[0];
+
+//this is the void function that is called by the thread to run the state machine
 void * rotar_thread(void* arg){
     (void)arg;
     while(is_initialized){
@@ -118,6 +124,8 @@ void * rotar_thread(void* arg){
     }
     return NULL;
 }
+
+
 void rotar_state_machine_init(){
     assert(!is_initialized);
     s_lineA = Gpio_openForEvents(GPIO_CHIP, GPIO_LINE_A);
@@ -126,6 +134,7 @@ void rotar_state_machine_init(){
     reset_counter();
     pthread_create(&rotary_thread, NULL, rotar_thread,NULL);
 }
+
 
 void rotar_state_machine_cleanup(){
     assert(is_initialized);
@@ -136,11 +145,15 @@ void rotar_state_machine_cleanup(){
     pthread_join(rotary_thread,NULL);
 }
 
+
 int rotar_state_machine_get_value(){
     return counter;
 }
+
+
 void set_counter(int value){
-    counter = value;
+    atomic_store(&counter, 0);
+    //counter = value;         //this also works but atomic_store is better
 }
 //this function needs to be in a background thread therefre after the init function start this as a thread.
 void rotar_state_machine_do_state(){
@@ -160,7 +173,7 @@ void rotar_state_machine_do_state(){
             perror("Line Event");
             exit(EXIT_FAILURE);
         }
-
+        
         //Run the state machine
         bool is_rising = (event.event_type == GPIOD_LINE_EVENT_RISING_EDGE);
         //check for which line number the event is triggered

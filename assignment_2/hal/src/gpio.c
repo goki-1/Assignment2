@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <gpiod.h>
 
+//taken from this link downlodable file with file name gpio.c https://opencoursehub.cs.sfu.ca/bfraser/solutions/433/guide-code/rotary_encoder/
 // Relies on the gpiod library.
 // Insallation for cross compiling:
 //      (host)$ sudo dpkg --add-architecture arm64
@@ -96,11 +97,11 @@ int Gpio_waitForLineChange(
     struct gpiod_line_bulk bulkWait;
     gpiod_line_bulk_init(&bulkWait);
     
-    // TODO: Add more lines if needed
+    //added two lines here
     gpiod_line_bulk_add(&bulkWait, (struct gpiod_line*)line1);
     gpiod_line_bulk_add(&bulkWait, (struct gpiod_line*)line2);
 
-    //gpiod_line_bulk_set_line(&bulkWait, lines, 2);
+
 
 
     gpiod_line_request_bulk_both_edges_events(&bulkWait, "Event Waiting");

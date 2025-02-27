@@ -12,8 +12,9 @@
 #include "hal/udp.h"
 #include <assert.h>
 
-
-//global variables
+//the basic idea for this file is taken from the lecture slides and the following link
+//https://opencoursehub.cs.sfu.ca/bfraser/grav-cms/cmpt433/notes/files/06-LinuxProgramming-c.pdf slide# 19-24
+//global variables to be used in all the functions to set and get the values
 static struct sockaddr_in sin_;
 static int socketDescriptor = -1;
 static struct sockaddr_in sinRemote;
@@ -25,6 +26,7 @@ bool is_initialized = false;
 // Function to create and bind  UDP socket
 int init_socket(void) 
 {
+    assert(!is_initialized);
     socketDescriptor = socket(AF_INET, SOCK_DGRAM, 0);
     if (socketDescriptor == -1) {
         perror("socket failure \n");
@@ -53,6 +55,7 @@ int get_socket_descriptor(void)
 }
 
 // Function to receive message from the socket
+//returns the byte received from the socket for debugging purposes returns -1 if failed at any point
 int recv_message(buffer_info *recv_data)
 {
     assert(is_initialized);
