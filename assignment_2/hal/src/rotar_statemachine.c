@@ -152,7 +152,7 @@ int rotar_state_machine_get_value(){
 
 
 void set_counter(int value){
-    atomic_store(&counter, 0);
+    atomic_store(&counter, value);
     //counter = value;         //this also works but atomic_store is better
 }
 //this function needs to be in a background thread therefre after the init function start this as a thread.
