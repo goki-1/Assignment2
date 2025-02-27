@@ -1,0 +1,163 @@
+sukhmanpreet@db128vm:~/cmpt433/work/myApps$ gdb-multiarch noworky
+GNU gdb (Debian 13.1-3) 13.1
+Copyright (C) 2023 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from noworky...
+(gdb) target remote 192.168.7.2:2001
+Remote debugging using 192.168.7.2:2001
+Reading /lib/ld-linux-aarch64.so.1 from remote target...
+warning: File transfers from remote targets can be slow. Use "set sysroot" to access files locally instead.
+Reading /lib/ld-linux-aarch64.so.1 from remote target...
+Reading symbols from target:/lib/ld-linux-aarch64.so.1...
+Reading /usr/lib/debug/.build-id/5b/b03d5dd46336e4dbc6decc67c224ca216d966b.debug from remote target...
+Reading /usr/lib/debug/.build-id/5b/b03d5dd46336e4dbc6decc67c224ca216d966b.debug from remote target...
+Reading symbols from target:/usr/lib/debug/.build-id/5b/b03d5dd46336e4dbc6decc67c224ca216d966b.debug...
+Reading /usr/lib/debug/.build-id/9f/edaa477ae4a3b43e143073860e7e7670f799fa.debug from remote target...
+_start () at ../sysdeps/aarch64/dl-start.S:22
+22	../sysdeps/aarch64/dl-start.S: No such file or directory.
+(gdb) break main
+Breakpoint 1 at 0xaaaaaaaa0978: file noworky.c, line 52.
+(gdb) break tradeArrays 
+Breakpoint 2 at 0xaaaaaaaa08a8: file noworky.c, line 29.
+(gdb) run
+The "remote" target does not support "run".  Try "help target" or "continue".
+(gdb) next
+_start () at ../sysdeps/aarch64/dl-start.S:25
+25	in ../sysdeps/aarch64/dl-start.S
+(gdb) next
+26	in ../sysdeps/aarch64/dl-start.S
+(gdb) next
+28	in ../sysdeps/aarch64/dl-start.S
+(gdb) help target
+Connect to a target machine or process.
+The first argument is the type or protocol of the target machine.
+Remaining arguments are interpreted by the target protocol.  For more
+information on the arguments for a particular protocol, type
+`help target ' followed by the protocol name.
+
+List of target subcommands:
+
+target core -- Use a core file as a target.
+target ctf -- (Use a CTF directory as a target.
+target exec -- Use an executable file as a target.
+target extended-remote -- Use a remote computer via a serial line, using a gdb-specific protocol.
+target native -- Native process (started by the "run" command).
+target record-btrace -- Collect control-flow trace and provide the execution history.
+target record-core -- Log program while executing and replay execution from log.
+target record-full -- Log program while executing and replay execution from log.
+target remote -- Use a remote computer via a serial line, using a gdb-specific protocol.
+target tfile -- Use a trace file as a target.
+--Type <RET> for more, q to quit, c to continue without paging--
+
+Type "help target" followed by target subcommand name for full documentation.
+Type "apropos word" to search for commands related to "word".
+Type "apropos -v word" for full documentation of commands related to "word".
+Command name abbreviations are allowed if unambiguous.
+(gdb) remote
+List of remote subcommands:
+
+remote delete -- Delete a remote file.
+remote get -- Copy a remote file to the local system.
+remote put -- Copy a local file to the remote system.
+
+Type "help remote" followed by remote subcommand name for full documentation.
+Type "apropos word" to search for commands related to "word".
+Type "apropos -v word" for full documentation of commands related to "word".
+Command name abbreviations are allowed if unambiguous.
+(gdb) run
+The "remote" target does not support "run".  Try "help target" or "continue".
+(gdb) continue
+Continuing.
+Reading /lib/aarch64-linux-gnu/libc.so.6 from remote target...
+Reading /usr/lib/debug/.build-id/76/f78efc64d66285367e8d3426b6ffa3b5bc8912.debug from remote target...
+Reading /usr/lib/debug/.build-id/76/f78efc64d66285367e8d3426b6ffa3b5bc8912.debug from remote target...
+
+Breakpoint 1, main () at noworky.c:52
+52		printf("noworky: by Brian Fraser\n");
+(gdb) next
+55		source = malloc(sizeof(*source) * NUM_ELEMENTS);
+(gdb) next
+56		target = malloc(sizeof(*target) * NUM_ELEMENTS);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0xaaaaaaac16b0, array2=0xaaaaaaac1710, 
+    size=10) at noworky.c:29
+29		for (i = size-1; i >= 0; i--) {
+(gdb) print i
+$1 = 10
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) print i
+$2 = 5
+(gdb) print i
+$3 = 5
+(gdb) print i
+$4 = 5
+(gdb) print i
+$5 = 5
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) print i
+$6 = 0
+(gdb) next
+29		for (i = size-1; i >= 0; i--) {
+(gdb) print i
+$7 = 0
+(gdb) next
+30			swapContent(array1+i, array2+i);
+(gdb) print i
+$8 = 4294967295
+(gdb) next
+
+Program received signal SIGSEGV, Segmentation fault.
+0x0000aaaaaaaa0864 in swapContent (d1=0xaab2aaac16a8, d2=0xaab2aaac1708)
+    at noworky.c:17
+17		double tmp = *d2;
+(gdb) 
