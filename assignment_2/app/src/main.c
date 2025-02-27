@@ -7,6 +7,14 @@
 #include "hal/gpio.h"
 #include "hal/pwm.h"
 #include "hal/periodTimer.h"
+#include "hal/connection.h"
+#include "hal/helper.h"
+#include <pthread.h>
+
+// Shared variables for LCD updates
+static pthread_t lcdThread;
+static bool lcdRunning = true;
+static pthread_mutex_t lcdMutex = PTHREAD_MUTEX_INITIALIZER;
 
 void printSampledValues() {
     int historySize = 0;
@@ -17,13 +25,12 @@ void printSampledValues() {
         return;
     }
 
-
     int numSamplesToDisplay = (historySize < 10) ? historySize : 10;
-    int step = (historySize < 10) ? 1 : historySize / 10; // Ensure even spacing
+    int step = (historySize < 10) ? 1 : historySize / 10; // Even spacing
 
     for (int i = 0; i < numSamplesToDisplay; i++) {
         int index = i * step; 
-        if (index >= historySize) { // Ensure we don’t exceed bounds
+        if (index >= historySize) { // makee sure we don’t exceed bounds
             index = historySize - 1;
         }
         printf("%d:%.3f  ", index, samples[index]);
@@ -33,9 +40,36 @@ void printSampledValues() {
     free(samples); // Free allocated memory from Sampler_getHistory()
 }
 
+// Thread function for updating the LCD
+void* lcd_update_thread(void* arg) {
+    (void)arg;
+    char lcd_buff[128];
 
+    while (lcdRunning) {
+        pthread_mutex_lock(&lcdMutex);  // Lock before reading shared data
+        snprintf(lcd_buff, sizeof(lcd_buff),
+                 "Sukhman Gurkirat!\n"
+                 "Flash @ %2dHz\n"
+                 "Dips  = %3d\n"
+                 "Max ms: %.1f",
+                 lcd_flash_rate, lcd_dip_count, lcd_max_ms);
+        pthread_mutex_unlock(&lcdMutex);  // Unlock after reading
+
+        DrawStuff_updateScreen(lcd_buff);
+        sleep_ms(1000);
+    }
+    return NULL;
+}
+
+
+int dip_count=0, sample_rate = 0, flash_rate = 0, history_second_size = 0;
+int lcd_flash_rate = 0;    //shared variable for LCD thread
+int lcd_dip_count = 0;     //""
+double lcd_max_ms = 0.0;   //""
+double avg_voltage = 0.0;
+long long total = 0;
+double* history_second= NULL;
 int main() {
-    //printf("Hello world with LCD!\n");
 
     // Initialize LCD and Sampler
     Period_init();
@@ -44,33 +78,30 @@ int main() {
     Sampler_init();
     init_pwm();
     rotar_state_machine_init();
+    start_connection();
+    
 
     sleep(1);  // Give time for initialization
-    char lcd_buff[128];  // Buffer for LCD
+
+    pthread_create(&lcdThread, NULL, lcd_update_thread, NULL);
+
     char term_buff[128];  // Buffer for Terminal Output
     Period_statistics_t periodStats;
-
-    while (true) {
-    
-        int dip_count = Sampler_getDipCounter();  // Number of dips detected
-
+    Command_type current = get_current_command();
+    while (current != CMD_STOP) {
+        flash_rate = rotar_state_machine_get_value(); 
+        change_frequency(flash_rate);
+        dip_count = Sampler_getDipCounter();  // Number of dips detected
         Sampler_moveCurrentDataToHistory();
         Period_getStatisticsAndClear(PERIOD_EVENT_SAMPLE_LIGHT, &periodStats);
-        int sample_rate = Sampler_getHistorySize();  // Number of light samples in the last second
-        int flash_rate = rotar_state_machine_get_value(); 
+        sample_rate = Sampler_getHistorySize();  // Number of light samples in the last second
+        avg_voltage = Sampler_getAverageReading();  // Average voltage (EMA)
 
-        change_frequency(flash_rate);
-
-        double avg_voltage = Sampler_getAverageReading();  // Average voltage (EMA)
-
-        snprintf(lcd_buff, sizeof(lcd_buff),
-                 "Sukhman Gurkirat!\n"
-                 "Flash @ %2dHz\n"
-                 "Dips  = %3d\n"
-                 "Max ms: %.1f",
-                 flash_rate, dip_count, periodStats.maxPeriodInMs);  
-
-        DrawStuff_updateScreen(lcd_buff);
+        pthread_mutex_lock(&lcdMutex);
+        lcd_flash_rate = flash_rate;
+        lcd_dip_count = dip_count;
+        lcd_max_ms = periodStats.maxPeriodInMs;
+        pthread_mutex_unlock(&lcdMutex);
 
         snprintf(term_buff, sizeof(term_buff),
                  "#Smpl/s = %d  Flash @ %dHz  avg = %.3fV  dips = %d  "
@@ -82,19 +113,26 @@ int main() {
         printf("%s\n", term_buff);
 
         printSampledValues();
-        
+        current = get_current_command();
+        total = Sampler_getNumSamplesTaken();
+        history_second = Sampler_getHistory(&history_second_size);
+        //printf("The size of the history is %d\n", history_second_size);
+        update(total, dip_count, sample_rate, history_second, history_second_size);
         // Sleep for 1 second before updating again
-        sleep(1);
+        sleep_ms(1000);
+        free(history_second);
     }
 
-    // Cleanup
-    Sampler_cleanup();
+    //cleanup
+    lcdRunning = false;
+    pthread_join(lcdThread, NULL);
     DrawStuff_cleanup();
     Sampler_cleanup();
     rotar_state_machine_cleanup();
     Gpio_cleanup();
     close_pwm();
     Period_cleanup();
+    stop_connection();
 
     printf("!!! DONE !!!\n");
     return 0;
