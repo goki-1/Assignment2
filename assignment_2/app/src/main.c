@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include <mcheck.h>
 
-// Shared variables for LCD updates
+// Shared variables for all the threads and main function
 static pthread_t lcdThread;
 static bool lcdRunning = true;
 static pthread_mutex_t lcdMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -87,16 +87,17 @@ int main() {
 
     char term_buff[128];  // Buffer for Terminal Output
     Period_statistics_t periodStats;
-    Command_type current = get_current_command();
+    Command_type current = get_current_command();    // Get the current command, if stop then exit otherwise run
     while (current != CMD_STOP) {
+        //gets the counter to set the frequency
         flash_rate = rotar_state_machine_get_value(); 
         change_frequency(flash_rate);
         dip_count = Sampler_getDipCounter();  // Number of dips detected
-        Sampler_moveCurrentDataToHistory();
+        Sampler_moveCurrentDataToHistory();     // Move the current data to history and set the dips to 0 so we need to store the dips before it
         Period_getStatisticsAndClear(PERIOD_EVENT_SAMPLE_LIGHT, &periodStats);
         sample_rate = Sampler_getHistorySize();  // Number of light samples in the last second
         avg_voltage = Sampler_getAverageReading();  // Average voltage (EMA)
-
+        //check if it works without mutexes
         pthread_mutex_lock(&lcdMutex);
         lcd_flash_rate = flash_rate;
         lcd_dip_count = dip_count;
@@ -113,13 +114,14 @@ int main() {
         printf("%s\n", term_buff);
 
         printSampledValues();
-        current = get_current_command();
+        current = get_current_command();//CHECK FOR EXIT CONDITION
         total = Sampler_getNumSamplesTaken();
         history_second = Sampler_getHistory(&history_second_size);
         //printf("The size of the history is %d\n", history_second_size);
         update(total, dip_count, sample_rate, history_second, history_second_size);
         // Sleep for 1 second before updating again
         sleep_ms(1000);
+        //freeing the pointer to the history as on every call it is assigned a new memory location
         free(history_second);
     }
 
