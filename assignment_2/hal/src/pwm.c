@@ -36,13 +36,13 @@ void pwm_enable(int enable) {
 
 void change_frequency(int frequency){
     int period_ns = 0;
-    if(frequency > 2){
+    if(frequency > 2){      //adding condition because of hardware limits
         period_ns = 1000000000 / frequency;
     }
     pwm_set_period(period_ns);
     //pwm_set_duty_cycle(period_ns / 2);
 
-    if(frequency > 2){
+    if(frequency > 2){      //adding condition because of hardware limits
         pwm_set_duty_cycle(period_ns / 2);
     }
     else {
