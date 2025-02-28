@@ -1,3 +1,15 @@
+/**
+Authors
+Sukhman Singh
+Gurkirat Singh
+Assignment 2 (433)
+Main file which runs and reads values about dips, frequency of the emitter, and stats of the samples form other files and displays it
+on the terminal each second and also updates the screen connected to the Beagle y through the separate thread. 
+function sleeps for one second before taking another set of values 
+it also initializes all the helper and hal modules ione by one 
+at the end, it closes all the hal modules and free the memory
+    */
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>  // For sleep()
@@ -29,7 +41,7 @@ void printSampledValues() {
     double *samples = Sampler_getHistory(&historySize);
 
     if (samples == NULL || historySize == 0) {
-        printf("No samples available from the previous second.\n");
+        //printf("No samples available from the previous second.\n");
         return;
     }
 
