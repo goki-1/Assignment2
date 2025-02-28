@@ -1,3 +1,4 @@
+//this code is provided by Prof in the Assignement description
 #ifndef _SAMPLER_H_
 #define _SAMPLER_H_
 
